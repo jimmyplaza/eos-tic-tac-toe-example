@@ -4,6 +4,7 @@
  */
 #include <eosiolib/eosio.hpp>
 
+using namespace eosio;
 /**
  *  @defgroup tictactoecontract Tic Tac Toe Contract
  *  @brief Defines the PvP tic tac toe contract example
@@ -42,10 +43,12 @@
  *  @{
  */
 
-class tic_tac_toe : public eosio::contract
-{
-public:
-  tic_tac_toe(account_name self) : contract(self) {}
+class [[eosio::contract]] tic_tac_toe : public eosio::contract {
+  public:
+  using contract::contract;
+
+  // tic_tac_toe(name self) : contract(self) {}
+  tic_tac_toe(name receiver, name code,  datastream<const char*> ds): contract(receiver, code, ds) {}
   /**
        * @brief Information related to a game
        * @abi table games i64
@@ -58,10 +61,10 @@ public:
     {
       initialize_board();
     }
-    account_name challenger;
-    account_name host;
-    account_name turn;             // = account name of host/ challenger
-    account_name winner = N(none); // = none/ draw/ name of host/ name of challenger
+    name challenger;
+    name host;
+    name turn;             // = account name of host/ challenger
+    name winner = "none"_n; // = none/ draw/ name of host/ name of challenger
     std::vector<uint8_t> board;
 
     // Initialize board with empty cell
@@ -75,34 +78,34 @@ public:
     {
       initialize_board();
       turn = host;
-      winner = N(none);
+      winner = "none"_n;
     }
 
-    auto primary_key() const { return challenger; }
+    auto primary_key() const { return challenger.value; }
     EOSLIB_SERIALIZE(game, (challenger)(host)(turn)(winner)(board))
   };
 
   /**
        * @brief The table definition, used to store existing games and their current state
        */
-  typedef eosio::multi_index<N(games), game> games;
+  typedef eosio::multi_index<"games"_n, game> games;
 
   /// @abi action
   /// Create a new game
-  void create(const account_name &challenger, const account_name &host);
+  void create(const name &challenger, const name &host);
 
   /// @abi action
   /// Restart a game
   /// @param by the account who wants to restart the game
-  void restart(const account_name &challenger, const account_name &host, const account_name &by);
+  void restart(const name &challenger, const name &host, const name &by);
 
   /// @abi action
   /// Close an existing game, and remove it from storage
-  void close(const account_name &challenger, const account_name &host);
+  void close(const name &challenger, const name &host);
 
   /// @abi action
   /// Make movement
   /// @param by the account who wants to make the move
-  void move(const account_name &challenger, const account_name &host, const account_name &by, const uint16_t &row, const uint16_t &column);
+  void move(const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column);
 };
 /// @}

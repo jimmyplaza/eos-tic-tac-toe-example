@@ -5,6 +5,7 @@
 #include "tic_tac_toe.hpp"
 
 using namespace eosio;
+using namespace std;
 
 /**
  * @brief Check if cell is empty
@@ -39,7 +40,7 @@ bool is_valid_movement(const uint16_t &row, const uint16_t &column, const vector
  * @param current_game - the game which we want to determine the winner of
  * @return winner of the game (can be either none/ draw/ account name of host/ account name of challenger)
  */
-account_name get_winner(const tic_tac_toe::game &current_game)
+name get_winner(const tic_tac_toe::game &current_game)
 {
   auto &board = current_game.board;
 
@@ -88,20 +89,21 @@ account_name get_winner(const tic_tac_toe::game &current_game)
     }
   }
   // Draw if the board is full, otherwise the winner is not determined yet
-  return is_board_full ? N(draw) : N(none);
+  return is_board_full ? "draw"_n : "none"_n;
 }
 
 /**
  * @brief Apply create action
  */
-void tic_tac_toe::create(const account_name &challenger, const account_name &host)
+[[eosio::action]]
+void tic_tac_toe::create(const name &challenger, const name &host)
 {
   require_auth(host);
   eosio_assert(challenger != host, "challenger shouldn't be the same as host");
 
   // Check if game already exists
-  games existing_host_games(_self, host);
-  auto itr = existing_host_games.find(challenger);
+  games existing_host_games(_self, host.value);
+  auto itr = existing_host_games.find(challenger.value);
   eosio_assert(itr == existing_host_games.end(), "game already exists");
 
   existing_host_games.emplace(host, [&](auto &g) {
@@ -114,13 +116,14 @@ void tic_tac_toe::create(const account_name &challenger, const account_name &hos
 /**
  * @brief Apply restart action
  */
-void tic_tac_toe::restart(const account_name &challenger, const account_name &host, const account_name &by)
+[[eosio::action]]
+void tic_tac_toe::restart(const name &challenger, const name &host, const name &by)
 {
   require_auth(by);
 
   // Check if game exists
-  games existing_host_games(_self, host);
-  auto itr = existing_host_games.find(challenger);
+  games existing_host_games(_self, host.value);
+  auto itr = existing_host_games.find(challenger.value);
   eosio_assert(itr != existing_host_games.end(), "game doesn't exists");
 
   // Check if this game belongs to the action sender
@@ -135,13 +138,14 @@ void tic_tac_toe::restart(const account_name &challenger, const account_name &ho
 /**
  * @brief Apply close action
  */
-void tic_tac_toe::close(const account_name &challenger, const account_name &host)
+[[eosio::action]]
+void tic_tac_toe::close(const name &challenger, const name &host)
 {
   require_auth(host);
 
   // Check if game exists
-  games existing_host_games(_self, host);
-  auto itr = existing_host_games.find(challenger);
+  games existing_host_games(_self, host.value);
+  auto itr = existing_host_games.find(challenger.value);
   eosio_assert(itr != existing_host_games.end(), "game doesn't exists");
 
   // Remove game
@@ -151,17 +155,18 @@ void tic_tac_toe::close(const account_name &challenger, const account_name &host
 /**
  * @brief Apply move action
  */
-void tic_tac_toe::move(const account_name &challenger, const account_name &host, const account_name &by, const uint16_t &row, const uint16_t &column)
+[[eosio::action]]
+void tic_tac_toe::move(const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column)
 {
   require_auth(by);
 
   // Check if game exists
-  games existing_host_games(_self, host);
-  auto itr = existing_host_games.find(challenger);
+  games existing_host_games(_self, host.value);
+  auto itr = existing_host_games.find(challenger.value);
   eosio_assert(itr != existing_host_games.end(), "game doesn't exists");
 
   // Check if this game hasn't ended yet
-  eosio_assert(itr->winner == N(none), "the game has ended!");
+  eosio_assert(itr->winner == "none"_n, "the game has ended!");
   // Check if this game belongs to the action sender
   eosio_assert(by == itr->host || by == itr->challenger, "this is not your game!");
   // Check if this is the  action sender's turn
@@ -180,4 +185,4 @@ void tic_tac_toe::move(const account_name &challenger, const account_name &host,
   });
 }
 
-EOSIO_ABI(tic_tac_toe, (create)(restart)(close)(move))
+EOSIO_DISPATCH(tic_tac_toe, (create)(restart)(close)(move))
