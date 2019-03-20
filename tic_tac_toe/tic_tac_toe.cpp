@@ -98,6 +98,7 @@ name get_winner(const tic_tac_toe::game &current_game)
 [[eosio::action]]
 void tic_tac_toe::create(const name &challenger, const name &host)
 {
+  print("host: ", host);
   require_auth(host);
   eosio_assert(challenger != host, "challenger shouldn't be the same as host");
 
