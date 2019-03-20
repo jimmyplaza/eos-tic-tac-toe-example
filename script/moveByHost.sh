@@ -9,6 +9,7 @@ $cleos_test wallet unlock --password PW5K7nxsfG6DGUN3FrkqYMiJhtuus26T4QQisc5wg3t
 
 # Tic Tac Toe 動作
 # $cleos_test push action jimmy2tictac move '{"challenger": "challenge111", "host": "host11111111", "by": "host11111111", "row": 0, "column": 0}' -p host11111111@active
-$cleos_test push action jimmy2tictac move '{"challenger": "challenge111", "host": "host11111111", "by": "host11111111", "row": 1, "column": 1}' -p host11111111@active
+# $cleos_test push action jimmy2tictac move '{"challenger": "challenge111", "host": "host11111111", "by": "host11111111", "row": 1, "column": 1}' -p host11111111@active
+$cleos_test push action jimmy2tictac move '{"challenger": "challenge111", "host": "host11111111", "by": "host11111111", "row": 2, "column": 2}' -p host11111111@active
 
 
