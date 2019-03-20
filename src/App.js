@@ -19,8 +19,10 @@ const network = {
   chainId: "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473"
 };
 
-const TONY = "tony11111111";
-const JOHN = "john11111111";
+// const TONY = "tony11111111";
+const TONY = "host11111111";
+// const JOHN = "john11111111";
+const JOHN = "challenge111";
 
 class App extends Component {
   state = {
@@ -37,8 +39,8 @@ class App extends Component {
       `Tic Tac Toe ${window.location.port}`
     );
     if (connected) {
-      await scatter.getIdentity({ accounts: [network] });
-      const account = scatter.identity.accounts.find(
+      await window.scatter.getIdentity({ accounts: [network] });
+      const account = window.scatter.identity.accounts.find(
         x => x.blockchain === "eos"
       );
       this.setState({
@@ -50,7 +52,8 @@ class App extends Component {
     setInterval(async () => {
       const data = await this.eos.getTableRows({
         json: true,
-        code: "tictactoe123",
+        // code: "tictactoe123",
+        code: "jimmy2tictac",
         scope: TONY,
         table: "games"
       });
@@ -69,7 +72,8 @@ class App extends Component {
     const row = Math.floor(i / 3);
     const col = i % 3;
     const account = this.state.account;
-    const contract = await this.eos.contract("tictactoe123");
+    // const contract = await this.eos.contract("tictactoe123");
+    const contract = await this.eos.contract("jimmy2tictac");
     contract.move(JOHN, TONY, account.name, row, col, {
       authorization: [`${account.name}@${account.authority}`]
     });
