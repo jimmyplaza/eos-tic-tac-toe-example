@@ -48,7 +48,7 @@ class App extends Component {
       });
     }
 
-    this.eos = scatter.eos(network, EOS);
+    this.eos = window.scatter.eos(network, EOS);
     setInterval(async () => {
       const data = await this.eos.getTableRows({
         json: true,
@@ -76,8 +76,26 @@ class App extends Component {
     const contract = await this.eos.contract("jimmy2tictac");
     contract.move(JOHN, TONY, account.name, row, col, {
       authorization: [`${account.name}@${account.authority}`]
+    }).catch(err => {
+        alert(err);
     });
   };
+
+    // $cleos_test push action jimmy2tictac restart '{"challenger": "challenge111", "host": "host11111111", "by": "host11111111"}' -p host11111111@active
+  restart = async () => {
+    const account = this.state.account;
+    const contract = await this.eos.contract("jimmy2tictac");
+    contract.restart(JOHN, TONY, account.name,  {
+      authorization: [`${account.name}@${account.authority}`]
+    }).catch(err => {
+        alert(err);
+    });
+  };
+
+  logout = () => {
+      window.scatter.forgetIdentity();
+      alert("Logout!");
+  }
 
   render() {
     const { account, host, challenger, turn, board, winner } = this.state;
@@ -108,7 +126,11 @@ class App extends Component {
             );
           })}
         </div>
-        <div className="winner">{`Winner: ${winner}`}</div>
+        <div className="winner">
+           {`Winner: ${winner}`}
+        </div>
+        <button onClick={() => this.logout()}>登出</button>
+        <button onClick={() => this.restart()}>重啟遊戲</button>
       </div>
     );
   }
