@@ -47,13 +47,12 @@ class [[eosio::contract]] tic_tac_toe : public eosio::contract {
   public:
   using contract::contract;
 
-  // tic_tac_toe(name self) : contract(self) {}
   tic_tac_toe(name receiver, name code,  datastream<const char*> ds): contract(receiver, code, ds) {}
+
   /**
        * @brief Information related to a game
-       * @abi table games i64
-       */
-  struct game
+  **/
+  struct [[eosio::table]] game
   {
     static const uint16_t board_width = 3;
     static const uint16_t board_height = board_width;
@@ -82,30 +81,31 @@ class [[eosio::contract]] tic_tac_toe : public eosio::contract {
     }
 
     auto primary_key() const { return challenger.value; }
+
     EOSLIB_SERIALIZE(game, (challenger)(host)(turn)(winner)(board))
   };
 
   /**
        * @brief The table definition, used to store existing games and their current state
-       */
+  **/
   typedef eosio::multi_index<"games"_n, game> games;
 
-  /// @abi action
   /// Create a new game
+  [[eosio::action]]
   void create(const name &challenger, const name &host);
 
-  /// @abi action
   /// Restart a game
   /// @param by the account who wants to restart the game
+  [[eosio::action]]
   void restart(const name &challenger, const name &host, const name &by);
 
-  /// @abi action
   /// Close an existing game, and remove it from storage
+  [[eosio::action]]
   void close(const name &challenger, const name &host);
 
-  /// @abi action
   /// Make movement
   /// @param by the account who wants to make the move
+  [[eosio::action]]
   void move(const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column);
 };
 /// @}
